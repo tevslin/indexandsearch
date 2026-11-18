@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Environment backups and secrets (Never commit credentials)
+.env
+.env.local
+*.backup.*
+*service-account*.json
+*credentials*.json
+
+# Temporary JSONL upsert payloads
+*.jsonl

@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcript Search | Vertex AI Reference UI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --border: #334155;
+            --accent: #818cf8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+        }
+
+        .search-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.75rem;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            flex: 1;
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: white;
+            font-size: 1rem;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        select,
+        input[type="date"],
+        input[type="number"] {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 0.4rem;
+            padding: 0.55rem;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .results-info {
+            margin-bottom: 1rem;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+        }
+
+        .meeting-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-bottom: 1.25rem;
+            overflow: hidden;
+        }
+
+        .meeting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 1.5rem;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.02);
+            user-select: none;
+        }
+
+        .meeting-header:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .meeting-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.4rem;
+        }
+
+        .tag {
+            background: #334155;
+            color: #cbd5e1;
+            padding: 0.15rem 0.6rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .tag.chamber {
+            background: #1e3a8a;
+            color: #bfdbfe;
+        }
+
+        .tag.date {
+            background: #3730a3;
+            color: #e0e7ff;
+        }
+
+        .snippet-list {
+            padding: 0 1.5rem 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .snippet-item {
+            margin-top: 1rem;
+            padding-left: 1rem;
+            border-left: 2px solid var(--primary);
+        }
+
+        .snippet-text {
+            font-size: 0.95rem;
+            color: #cbd5e1;
+        }
+
+        .jump-btn {
+            display: inline-block;
+            margin-top: 0.5rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .jump-btn:hover {
+            text-decoration: underline;
+        }
+
+        .loader {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Structured Transcript Search</h1>
+            <p class="subtitle">Reference UI for Vertex AI Agenda-Chunked Transcripts</p>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="queryInput" placeholder="Search transcripts (e.g., dairy pricing reform)..."
+                    onkeypress="if(event.key==='Enter') performSearch()">
+                <button onclick="performSearch()">Search</button>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label>Chamber</label>
+                    <select id="chamberFilter">
+                        <option value="">Any Chamber</option>
+                        <option value="Senate">Senate</option>
+                        <option value="House">House</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Committee</label>
+                    <input type="text" id="committeeFilter" placeholder="e.g., Agriculture">
+                </div>
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select id="sortSelect">
+                        <option value="relevance">Relevance</option>
+                        <option value="date_desc">Date (Newest First)</option>
+                        <option value="date_asc">Date (Oldest First)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Max Results</label>
+                    <input type="number" id="maxResultsInput" value="25" min="1" max="100">
+                </div>
+                <div class="filter-group">
+                    <label>Start Date (>=)</label>
+                    <input type="date" id="dateGeFilter">
+                </div>
+                <div class="filter-group">
+                    <label>End Date (<=)</label>
+                    <input type="date" id="dateLeFilter">
+                </div>
+                <div class="filter-group">
+                    <label>Target Index (index_name|region)</label>
+                    <input type="text" id="indexInput" value="example-legislature-v1|us">
+                </div>
+                <div class="filter-group">
+                    <label>Search Proxy Endpoint</label>
+                    <input type="text" id="apiEndpoint" value="http://127.0.0.1:8080">
+                </div>
+                <div class="filter-group">
+                    <label>X-API-Key (Optional locally)</label>
+                    <input type="password" id="apiKey" placeholder="Enter SEARCH_API_KEY">
+                </div>
+            </div>
+        </div>
+
+        <div id="loader" class="loader">Retrieving matching transcript clips...</div>
+        <div id="resultsInfo" class="results-info"></div>
+        <div id="resultsList"></div>
+    </div>
+
+    <script>
+        async function performSearch() {
+            const endpoint = document.getElementById('apiEndpoint').value.trim();
+            const query = document.getElementById('queryInput').value.trim();
+            const chamber = document.getElementById('chamberFilter').value;
+            const committee = document.getElementById('committeeFilter').value.trim();
+            const sort = document.getElementById('sortSelect').value;
+            const key = document.getElementById('apiKey').value.trim();
+            const dateGe = document.getElementById('dateGeFilter').value;
+            const dateLe = document.getElementById('dateLeFilter').value;
+            const maxResults = parseInt(document.getElementById('maxResultsInput').value) || 25;
+
+            const [index_name, region] = document.getElementById('indexInput').value.split('|');
+            if (!query || !index_name || !region) return;
+
+            const resultsList = document.getElementById('resultsList');
+            const resultsInfo = document.getElementById('resultsInfo');
+            const loader = document.getElementById('loader');
+
+            resultsList.innerHTML = '';
+            resultsInfo.innerText = '';
+            loader.style.display = 'block';
+
+            const payload = {
+                query,
+                index_name: index_name.trim(),
+                region: region.trim(),
+                chamber: chamber || undefined,
+                committee: committee || undefined,
+                sort,
+                max_results: maxResults,
+                date_ge: dateGe || undefined,
+                date_le: dateLe || undefined
+            };
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(key ? { 'X-API-Key': key } : {})
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                loader.style.display = 'none';
+
+                if (data.error) {
+                    resultsInfo.innerText = 'Error: ' + data.error;
+                    return;
+                }
+
+                const results = data.results || [];
+                resultsInfo.innerText = `Found ${results.length} matching segments.`;
+                renderMeetingAccordions(results, resultsList);
+            } catch (err) {
+                loader.style.display = 'none';
+                resultsInfo.innerText = 'Request failed: ' + err.message;
+            }
+        }
+
+        function renderMeetingAccordions(results, container) {
+            // Group clips by meeting_id while preserving highest-scoring meeting order
+            const groups = new Map();
+            results.forEach(item => {
+                const groupKey = item.meeting_id || item.transcript_url || item.id;
+                if (!groups.has(groupKey)) {
+                    groups.set(groupKey, []);
+                }
+                groups.get(groupKey).push(item);
+            });
+
+            groups.forEach((clips) => {
+                const primary = clips[0];
+                const card = document.createElement('div');
+                card.className = 'meeting-card';
+
+                const header = document.createElement('div');
+                header.className = 'meeting-header';
+                header.innerHTML = `
+                    <div>
+                        <div class="meeting-title">${primary.meeting_title}</div>
+                        <div class="meta-tags">
+                            <span class="tag chamber">${primary.chamber || 'General'}</span>
+                            <span class="tag">${primary.committee || ''}</span>
+                            <span class="tag date">${primary.date || ''}</span>
+                            <span class="tag">${clips.length} match${clips.length > 1 ? 'es' : ''}</span>
+                        </div>
+                    </div>
+                    <span class="caret">▼</span>
+                `;
+
+                const snippetList = document.createElement('div');
+                snippetList.className = 'snippet-list';
+
+                clips.forEach(clip => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'snippet-item';
+                    itemDiv.innerHTML = `
+                        <div class="snippet-text">${clip.snippet || 'No snippet available.'}</div>
+                        <a href="${clip.deep_link}" target="_blank" class="jump-btn">
+                            Jump to ${Math.floor(clip.timestamp || 0)}s &rarr;
+                        </a>
+                    `;
+                    snippetList.appendChild(itemDiv);
+                });
+
+                header.addEventListener('click', () => {
+                    const isHidden = snippetList.style.display === 'none';
+                    snippetList.style.display = isHidden ? 'block' : 'none';
+                    header.querySelector('.caret').innerText = isHidden ? '▼' : '▶';
+                });
+
+                card.appendChild(header);
+                card.appendChild(snippetList);
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+
+</html>
